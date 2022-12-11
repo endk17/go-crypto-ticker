@@ -14,6 +14,6 @@ func main() {
 	}
 
 	http.HandleFunc("/ping", pingHandler)
-	log.Println("Listing for requests at http://localhost:8000/hello")
+	log.Println("Listing for requests at http://localhost:8000/ping")
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
