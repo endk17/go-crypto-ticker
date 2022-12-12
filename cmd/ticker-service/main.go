@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/endk17/go-crypto-ticker/cmd/ticker-service/config"
@@ -13,7 +15,6 @@ import (
 	"github.com/k0kubun/pp/v3"
 	"github.com/preichenberger/go-coinbasepro/v2"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 func init() {
@@ -53,7 +54,7 @@ func main() {
 	// sub msg
 	subscribe := coinbasepro.Message{
 		Type:       "subscribe",
-		ProductIds: []string{"BTC-USD", "ETH-USD"},
+		ProductIds: []string{"BTC-USD", "ETH-USD", "LINK-USD", "MATIC-USD"},
 		Channels: []coinbasepro.MessageChannel{
 			{
 				Name: "ticker",
@@ -66,7 +67,7 @@ func main() {
 		log.Fatal().Err(err).Send()
 	}
 
-	// Read ticks from ws
+	// read tick data from ws
 	messages := make(chan coinbasepro.Message)
 	go func() {
 		defer close(messages)
@@ -82,5 +83,26 @@ func main() {
 			messages <- message
 		}
 	}()
+
+	// Write tick data to db
+	for message := range messages {
+		// Convert price to float
+		price, err := strconv.ParseFloat(message.Price, 64)
+		if err != nil {
+			log.Error().Err(err).Send()
+			continue
+		}
+
+		// create influx point using params constructor
+		p := influxdb2.NewPoint("tick",
+			map[string]string{"product": message.ProductID},
+			map[string]interface{}{"price": price},
+			time.Now())
+
+		// write point
+		if err := writeAPI.WritePoint(context.Background(), p); err != nil {
+			log.Error().Err(err).Send()
+		}
+	}
 
 }
