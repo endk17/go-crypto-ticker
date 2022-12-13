@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -15,6 +14,7 @@ import (
 	"github.com/k0kubun/pp/v3"
 	"github.com/preichenberger/go-coinbasepro/v2"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func init() {
@@ -28,8 +28,7 @@ func main() {
 		io.WriteString(w, "pong!\n")
 	}
 	http.HandleFunc("/ping", pingHandler)
-	log.Println("Listing for requests at http://localhost:8000/ping")
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	pp.Println("Listing for requests at http://localhost:8000/ping")
 
 	cfg, err := config.Read()
 	if err != nil {
@@ -54,7 +53,7 @@ func main() {
 	// sub msg
 	subscribe := coinbasepro.Message{
 		Type:       "subscribe",
-		ProductIds: []string{"BTC-USD", "ETH-USD", "LINK-USD", "MATIC-USD"},
+		ProductIds: []string{"BTC-USD", "ETH-USD"},
 		Channels: []coinbasepro.MessageChannel{
 			{
 				Name: "ticker",
@@ -104,5 +103,4 @@ func main() {
 			log.Error().Err(err).Send()
 		}
 	}
-
 }
