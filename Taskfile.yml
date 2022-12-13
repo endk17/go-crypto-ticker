@@ -4,12 +4,12 @@ tasks:
   up:
     dir: '{{.USER_WORKING_DIR}}'
     preconditions:
-      - test -f docker-compose.yml
+      - echo "checking pre-conditions"
     cmds:
-      - docker-compose down -f stack.yml -v
-      - docker-compose up -f stack.yml --build
+      - docker-compose down -v
+      - docker-compose up --build
 
   down:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
-      - docker-compose down -f stack.yml -v
+      - docker-compose down -v
