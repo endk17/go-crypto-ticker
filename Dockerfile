@@ -13,4 +13,5 @@ RUN CGO_ENABLED=0 go build -o ticker ./cmd/ticker-service/main.go
 FROM alpine:3.16.2
 WORKDIR /bin
 COPY --from=builder /work/ticker /bin/ticker
+EXPOSE 8086
 CMD /bin/ticker

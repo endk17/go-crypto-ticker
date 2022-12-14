@@ -5,29 +5,31 @@ services:
     image: tickdata:local
     build:
       context: .
+    depends_on:
+      - "influxdb"
     environment:
       APP_INFLUXDB_URL: "http://influxdb:8086"
       APP_INFLUXDB_ORG: "org"
       APP_INFLUXDB_USER: "admin"
-      APP_INFLUXDB_PASSWORD: ${APP_INFLUXDB_PASSWORD}
+      APP_INFLUXDB_PASSWORD: "supersecretpassword"
       APP_INFLUXDB_BUCKET: "ticker"
-      APP_INFLUXDB_TOKEN: ${APP_INFLUXDB_TOKEN}
+      APP_INFLUXDB_TOKEN: "token101"
 
   influxdb:
-    image: influxdb:2.5.0-alpine
+    image: influxdb:2.4.0-alpine
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: ${APP_INFLUXDB_USER}
-      DOCKER_INFLUXDB_INIT_PASSWORD: ${APP_INFLUXDB_PASSWORD}
-      DOCKER_INFLUXDB_INIT_ORG: ${APP_INFLUXDB_ORG}
-      DOCKER_INFLUXDB_INIT_BUCKET: ${APP_INFLUXDB_BUCKET}
+      DOCKER_INFLUXDB_INIT_USERNAME: "admin1"
+      DOCKER_INFLUXDB_INIT_PASSWORD: "supersecretpassword"
+      DOCKER_INFLUXDB_INIT_ORG: "org"
+      DOCKER_INFLUXDB_INIT_BUCKET: "ticker"
       DOCKER_INFLUXDB_INIT_RETENTION: "1h"
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${APP_INFLUXDB_TOKEN}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: "token101"
     ports:
     - "8086:8086"
     volumes:
     - influxdb-data:/var/lib/influxdb2
-    - ./influxdb/init:/docker-entrypoint-initdb.d
+    - ./influxdb/init:/init.sh
 
 volumes:
   influxdb-data:
